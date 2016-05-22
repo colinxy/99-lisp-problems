@@ -130,7 +130,7 @@
 (defun split (lst nth)
   (let* ((splitted (split-helper nil lst nth))
          (first-half-reversed (first splitted))
-         (second-half (second splitted)))
+         (second-half        (second splitted)))
     (list (reverse first-half-reversed) second-half)))
 
 
@@ -141,5 +141,54 @@
 ;; * (slice '(a b c d e f g h i k) 3 7)
 ;; (C D E F G)
 
+(defun from-nth (lst index)
+  (if (and lst
+           (> index 1))
+      (from-nth (cdr lst) (1- index))
+      lst))
+
+(defun slice-nth (lst nth)
+  (if (and lst
+           (>= nth 0))
+      (cons (car lst)
+            (slice-nth (cdr lst) (1- nth)))
+      nil))
+
 (defun slice (lst begin end)
-  )
+  "Indexes are 1 based."
+  (slice-nth (from-nth lst begin) (- end
+                                     (if (< begin 1) 1 begin))))
+
+
+;; 19. Rotate a list N places to the left.
+;; Examples:
+;; * (rotate '(a b c d e f g h) 3)
+;; (D E F G H A B C)
+
+;; * (rotate '(a b c d e f g h) -2)
+;; (G H A B C D E F)
+
+(defun rotate (lst n-places)
+  (let* ((n (if (< n-places 0)
+                (+ (length lst) n-places)
+                n-places))
+         (splitted (split lst n))
+         (front-half (first splitted))
+         (back-half (second splitted)))
+    (append back-half front-half)))
+
+
+;; 20. Remove the K'th element from a list.
+;; Example:
+;; * (remove-at '(a b c d) 2)
+;; (A C D)
+
+(defun remove-at (lst nth)
+  (if (and lst
+           (>= nth 1))
+      (if (= 1 nth)
+          (cdr lst)
+          (cons (car lst)
+                (remove-at (cdr lst)
+                           (1- nth))))
+      lst))
