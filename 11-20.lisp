@@ -43,5 +43,103 @@
 ;; * (encode-direct '(a a a a b c c a a d e e e e))
 ;; ((4 A) B (2 C) (2 A) D (4 E))
 
+(defun encode-direct-helper (encoded rest)
+  (let ((number (first encoded))
+        (element (second encoded)))
+    (if (and rest
+             (equal element (car rest)))
+        (encode-direct-helper (list (1+ number) element)
+                              (cdr rest))
+        (if (= 1 number)
+            (list element rest)
+            (list encoded rest)))))
+
 (defun encode-direct (lst)
+  (if lst
+      (let ((splitted (encode-direct-helper (list 1 (car lst))
+                                            (cdr lst))))
+        (cons (first splitted)
+              (encode-direct (second splitted))))
+      nil))
+
+
+;; 14. Duplicate the elements of a list.
+
+;; Example:
+;; * (dupli '(a b c c d))
+;; (A A B B C C C C D D)
+
+(defun dupli (lst)
+  (if lst
+      (let ((first-elem (car lst)))
+        (cons first-elem
+              (cons first-elem
+                    (dupli (cdr lst)))))
+      nil))
+
+
+;; 15. Replicate the elements of a list a given number of times.
+
+;; Example:
+;; * (repli '(a b c) 3)
+;; (A A A B B B C C C)
+
+(defun repli (lst number)
+  (if lst
+      (let ((first-elem (car lst)))
+        (append (make-list number :initial-element first-elem)
+                (repli (cdr lst) number)))
+      nil))
+
+
+;; 16. Drop every N'th element from a list.
+
+;; Example:
+;; * (drop '(a b c d e f g h i k) 3)
+;; (A B D E G H K)
+
+(defun drop-helper (lst curr nth)
+  (if lst
+      (if (= 1 curr)
+          (drop-helper (cdr lst) nth nth)
+          (cons (car lst)
+                (drop-helper (cdr lst) (1- curr) nth)))
+      nil))
+
+(defun drop (lst nth)
+  (drop-helper lst nth nth))
+
+
+;; 17. Split a list into two parts; the length of the first part is given.
+;; Do not use any predefined predicates.
+
+;; Example:
+;; * (split '(a b c d e f g h i k) 3)
+;; ( (A B C) (D E F G H I K))
+
+(defun split-helper (first-half-reversed second-half nth)
+  (if second-half
+      (if (= 0 nth)
+          (list first-half-reversed second-half)
+          (split-helper (cons (car second-half)
+                              first-half-reversed)
+                        (cdr second-half)
+                        (1- nth)))
+      (list first-half-reversed second-half)))
+
+(defun split (lst nth)
+  (let* ((splitted (split-helper nil lst nth))
+         (first-half-reversed (first splitted))
+         (second-half (second splitted)))
+    (list (reverse first-half-reversed) second-half)))
+
+
+;; 18. Extract a slice from a list.
+;; Given two indices, I and K, the slice is the list containing the elements between the I'th and K'th element of the original list (both limits included). Start counting the elements with 1.
+
+;; Example:
+;; * (slice '(a b c d e f g h i k) 3 7)
+;; (C D E F G)
+
+(defun slice (lst begin end)
   )
