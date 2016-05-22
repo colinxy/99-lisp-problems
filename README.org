@@ -1,0 +1,8 @@
+
+* 99 Lisp problems
+
+from [[http://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-Nine_Lisp_Problems.html]]
+
+Also related
+ - [[https://wiki.haskell.org/99_questions][99 Haskell Problems]]
+ - [[https://sites.google.com/site/prologsite/prolog-problems][99 Prolog Problems]]
