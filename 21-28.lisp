@@ -1,4 +1,6 @@
 
+(load "11-20.lisp")
+
 ;; 21. Insert an element at a given position into a list.
 
 ;; Example:
@@ -76,4 +78,28 @@
 ;; ((A B C) (A B D) (A B E) ... )
 
 (defun combination (k lst)
-  )
+  (if (> k (length lst))
+      nil
+      (if (> k 0)
+          (append (mapcar #'(lambda (rest) (cons (car lst) rest))
+                          (combination (1- k) (cdr lst)))
+                  (combination k (cdr lst)))
+          '(()))))                      ;has to use list of list
+
+
+;; 27. Group the elements of a set into disjoint subsets.
+;; a) In how many ways can a group of 9 people work in 3 disjoint subgroups of 2, 3 and 4 persons? Write a function that generates all the possibilities and returns them in a list.
+
+;; Example:
+;; * (group3 '(aldo beat carla david evi flip gary hugo ida))
+;; ( ( (ALDO BEAT) (CARLA DAVID EVI) (FLIP GARY HUGO IDA) )
+;; ... )
+
+;; b) Generalize the above predicate in a way that we can specify a list of group sizes and the predicate will return a list of groups.
+
+;; Example:
+;; * (group '(aldo beat carla david evi flip gary hugo ida) '(2 2 5))
+;; ( ( (ALDO BEAT) (CARLA DAVID) (EVI FLIP GARY HUGO IDA) )
+;; ... )
+
+;; Note that we do not want permutations of the group members; i.e. ((ALDO BEAT) ...) is the same solution as ((BEAT ALDO) ...). However, we make a difference between ((ALDO BEAT) (CARLA DAVID) ...) and ((CARLA DAVID) (ALDO BEAT) ...).
