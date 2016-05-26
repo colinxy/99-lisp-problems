@@ -103,3 +103,16 @@
 ;; ... )
 
 ;; Note that we do not want permutations of the group members; i.e. ((ALDO BEAT) ...) is the same solution as ((BEAT ALDO) ...). However, we make a difference between ((ALDO BEAT) (CARLA DAVID) ...) and ((CARLA DAVID) (ALDO BEAT) ...).
+
+;; lst heterogeneous
+(defun group3 (lst)
+  "Group into (2 3 4)."
+  (if (= 9 (length lst))
+      (mapcar )
+      nil))
+
+(defun group (lst groups)
+  (if (= (apply #'+ groups)
+         (length lst))
+      ()
+      nil))

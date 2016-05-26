@@ -90,3 +90,70 @@
 ;; phi(m) = (p1 - 1) * p1 ** (m1 - 1) + (p2 - 1) * p2 ** (m2 - 1) + (p3 - 1) * p3 ** (m3 - 1) + ...
 
 ;; Note that a ** b stands for the b'th power of a.
+
+(defun euler-phi (n)
+  (reduce #'(lambda (phi pair) (let ((p (car pair)))
+                                 (* (/ phi p) (1- p))))
+          (prime-factors-mult n) :initial-value n))
+
+
+;; 38. Compare the two methods of calculating Euler's totient function.
+;; Use the solutions of problems P34 and P37 to compare the algorithms. Take the number of logical inferences as a measure for efficiency. Try to calculate phi(10090) as an example.
+
+
+;; 39. A list of prime numbers.
+;; Given a range of integers by its lower and upper limit, construct a list of all prime numbers in that range.
+
+;; borrowed from rosetta code
+(defun prime-sieve (upper-limit)
+  (cons 2                               ;build from odd only numbers
+        (loop
+           with upper = (ash (1- upper-limit) -1)
+           with is-prime-arr = (make-array (1+ upper)
+                                           :element-type 'bit
+                                           :initial-element 0)
+           ;; index maps to number (1+ (* 2 index))
+           ;; 0 means is-prime
+           with stop = (ash (isqrt upper-limit) -1)
+
+           for i from 1 to upper
+           when (zerop (sbit is-prime-arr i))
+           collect (1+ (ash i 1))
+           and when (<= i stop) do
+             (loop for j from (ash (* i (1+ i)) 1) to upper by (1+ (ash i 1))
+                do (setf (sbit is-prime-arr j) 1)))))
+
+
+;; 40.Goldbach's conjecture.
+;; Goldbach's conjecture says that every positive even number greater than 2 is the sum of two prime numbers. Example: 28 = 5 + 23. It is one of the most famous facts in number theory that has not been proved to be correct in the general case. It has been numerically confirmed up to very large numbers (much larger than we can go with our Prolog system). Write a predicate to find the two prime numbers that sum up to a given even integer.
+
+;; Example:
+;; * (goldbach 28)
+;; (5 23)
+
+(defun goldbach (n)
+  (if (and (evenp n) (> n 2))
+      (loop for i from 2 to (ash n -1)
+         when (and (is-prime i)
+                   (is-prime (- n i)))
+         return (list i (- n i)))
+      nil))
+
+
+;; 41. A list of Goldbach compositions.
+;; Given a range of integers by its lower and upper limit, print a list of all even numbers and their Goldbach composition.
+;; Example:
+;; * (goldbach-list 9 20)
+;; 10 = 3 + 7
+;; 12 = 5 + 7
+;; 14 = 3 + 11
+;; 16 = 3 + 13
+;; 18 = 5 + 13
+;; 20 = 3 + 17
+
+;; In most cases, if an even number is written as the sum of two prime numbers, one of them is very small. Very rarely, the primes are both bigger than say 50.
+
+(defun goldbach-list (lower upper)
+  (loop for i from lower to upper
+     when (evenp i)
+     collect (goldbach i)))
