@@ -104,15 +104,65 @@
 
 ;; Note that we do not want permutations of the group members; i.e. ((ALDO BEAT) ...) is the same solution as ((BEAT ALDO) ...). However, we make a difference between ((ALDO BEAT) (CARLA DAVID) ...) and ((CARLA DAVID) (ALDO BEAT) ...).
 
-;; lst heterogeneous
+;; assume heterogeneous list
+(defun remove-all (items lst)
+  (dolist (i items lst)
+    (setf lst (remove i lst :count 1)))) ;oh my complexity
+
+;; assume heterogeneous list
 (defun group3 (lst)
   "Group into (2 3 4)."
   (if (= 9 (length lst))
-      (mapcar )
+      (loop for g2 in (combination 2 lst)
+         for rest3-4 = (remove-all g2 lst)
+         append
+           (mapcar #'(lambda (group3-4) (cons g2 group3-4))
+                   (loop for g3 in (combination 3 rest3-4)
+                      for rest4 = (remove-all g3 rest3-4)
+                      collect (list g3 rest4))))
       nil))
 
+;; assume heterogeneous list
 (defun group (lst groups)
   (if (= (apply #'+ groups)
          (length lst))
-      ()
+      (if groups
+          (loop for g in (combination (car groups) lst)
+             for rest = (remove-all g lst)
+             append
+               (mapcar #'(lambda (rest-groups) (cons g rest-groups))
+                       (group rest (cdr groups))))
+          '(()))
       nil))
+
+
+;; 28. Sorting a list of lists according to length of sublists
+
+;; a) We suppose that a list contains elements that are lists themselves. The objective is to sort the elements of this list according to their length. E.g. short lists first, longer lists later, or vice versa.
+
+;; Example:
+;; * (lsort '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
+;; ((O) (D E) (D E) (M N) (A B C) (F G H) (I J K L))
+
+;; b) Again, we suppose that a list contains elements that are lists themselves. But this time the objective is to sort the elements of this list according to their length frequency; i.e., in the default, where sorting is done ascendingly, lists with rare lengths are placed first, others with a more frequent length come later.
+
+;; Example:
+;; * (lfsort '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
+;; ((i j k l) (o) (a b c) (f g h) (d e) (d e) (m n))
+
+;; didn't bother to optimize, calls length multiple times
+(defun lsort (lst-lst)
+  (sort (copy-seq lst-lst) #'< :key #'length))
+
+(defun make-histogram (sequence key)
+  (let ((histogram (make-hash-table)))
+    (map nil #'(lambda (elem)
+                 (incf (gethash (funcall key elem) histogram 0)))
+         sequence)
+    histogram))
+
+(defun lfsort (lst-lst)
+  (let ((length-table (make-histogram lst-lst #'length)))
+    (sort (copy-seq lst-lst) #'<
+          :key #'(lambda (elem)
+                   (gethash (length elem) length-table)))))

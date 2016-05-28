@@ -12,6 +12,76 @@
 ;; true fail true
 ;; fail true fail
 ;; fail fail fail
+;; * (table 'A 'B '(and A (or A B)))
+;; ((T T T)
+;;  (T NIL T)
+;;  (NIL T NIL)
+;;  (NIL NIL NIL))
 
-(defun table ()
+;; only `and', `or' are supported as logical operator,
+;; assumed to be binary operator
+(defun logical-prefix-eval (expr mapping)
+  (let ((operator      (first expr))
+        (left-operand  (second expr))
+        (right-operand (third expr)))
+    (if (symbolp left-operand)
+        (setf left-operand (funcall mapping left-operand))
+        (setf left-operand (logical-prefix-eval left-operand mapping)))
+    (if (symbolp right-operand)
+        (setf right-operand (funcall mapping right-operand))
+        (setf right-operand (logical-prefix-eval right-operand mapping)))
+    (cond
+      ((eq operator 'and) (and left-operand right-operand))
+      ((eq operator 'or)  (or  left-operand right-operand))
+      (t nil))))
+
+(defun table (a b expr)
+  (flet ((key-val-mapping (pair1 pair2) (lambda (symb)
+                              (cond
+                                ((eq symb (car pair1)) (cdr pair1))
+                                ((eq symb (car pair2)) (cdr pair2))
+                                (t nil)))))
+    (list
+     (list t t
+           (logical-prefix-eval expr (key-val-mapping (cons a t) (cons b t))))
+     (list t nil
+           (logical-prefix-eval expr (key-val-mapping (cons a t) (cons b nil))))
+     (list nil t
+           (logical-prefix-eval expr (key-val-mapping (cons a nil) (cons b t))))
+     (list nil nil
+           (logical-prefix-eval expr (key-val-mapping (cons a nil) (cons b nil)))))))
+
+
+;; 47. Truth tables for logical expressions (2).
+;; Continue problem P46 by defining and/2, or/2, etc as being operators. This allows to write the logical expression in the more natural way, as in the example: A and (A or not B). Define operator precedence as usual; i.e. as in Java.
+
+;; Example:
+;; * table(A,B, A and (A or not B))
+;; true true true
+;; true fail true
+;; fail true fail
+;; fail fail fail
+;; * table('A, 'B, '(A and (A or not B)))
+
+;; trivial modification prefix to infix, omitted
+;; (defun logical-infix-eval (expr mapping)
+;;   )
+
+
+;; 48. Truth tables for logical expressions (3).
+;; Generalize problem P47 in such a way that the logical expression may contain any number of logical variables. Define table/2 in a way that table(List,Expr) prints the truth table for the expression Expr, which contains the logical variables enumerated in List.
+
+;; Example:
+;; * table([A,B,C], A and (B or C) equ A and B or A and C).
+;; true true true true
+;; true true fail true
+;; true fail true true
+;; true fail fail true
+;; fail true true true
+;; fail true fail true
+;; fail fail true true
+;; fail fail fail true
+;; * (table-extended '(a b c) '(a and (b or c) eq a and b or a and c))
+
+(defun table-extended (symbols expr)
   )
