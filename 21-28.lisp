@@ -158,7 +158,7 @@
   (let ((histogram (make-hash-table)))
     (map nil #'(lambda (elem)
                  (incf (gethash (funcall key elem) histogram 0)))
-         sequence)
+         sequence)                      ;use map in place of loop
     histogram))
 
 (defun lfsort (lst-lst)

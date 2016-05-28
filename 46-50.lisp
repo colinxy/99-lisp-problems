@@ -37,10 +37,10 @@
 
 (defun table (a b expr)
   (flet ((key-val-mapping (pair1 pair2) (lambda (symb)
-                              (cond
-                                ((eq symb (car pair1)) (cdr pair1))
-                                ((eq symb (car pair2)) (cdr pair2))
-                                (t nil)))))
+                                          (cond
+                                            ((eq symb (car pair1)) (cdr pair1))
+                                            ((eq symb (car pair2)) (cdr pair2))
+                                            (t nil)))))
     (list
      (list t t
            (logical-prefix-eval expr (key-val-mapping (cons a t) (cons b t))))
@@ -85,3 +85,35 @@
 
 (defun table-extended (symbols expr)
   )
+
+
+;; 49. Gray code.
+
+;; An n-bit Gray code is a sequence of n-bit strings constructed according to certain rules. For example,
+;; n = 1: C(1) = ['0','1'].
+;; n = 2: C(2) = ['00','01','11','10'].
+
+;; Find out the construction rules and write a predicate with the following specification:
+
+;; % gray(N,C) :- C is the N-bit Gray code
+
+;; Can you apply the method of "result caching" in order to make the predicate more efficient, when it is to be used repeatedly?
+
+(defparameter gray-cache (make-array 1
+                                     :fill-pointer 1
+                                     :element-type 'list
+                                     :adjustable t
+                                     :initial-contents '((""))))
+
+(defun gray-code (n)
+  (if (array-in-bounds-p gray-cache n)
+      (aref gray-cache n)
+      (let* ((gray-n-1         (gray-code (1- n)))
+             (gray-n-1-reverse (reverse gray-n-1))
+             (gray-n (append
+                      (mapcar #'(lambda (str) (concatenate 'string "0" str))
+                              gray-n-1)
+                      (mapcar #'(lambda (str) (concatenate 'string "1" str))
+                              gray-n-1-reverse))))
+        (vector-push-extend gray-n gray-cache)
+        gray-n)))
