@@ -11,8 +11,7 @@
 ;; NIL
 
 (defun istree (tree)
-  (if (null tree)
-      t
+  (or (null tree)
       (and (= 3 (length tree))
            (atom   (first tree))
            (istree (second tree))
@@ -34,11 +33,11 @@
 ;;  (X (X NIL (X NIL NIL)) (X NIL NIL))
 ;;  (X (X (X NIL NIL) NIL) (X NIL NIL)))
 
-(defun cartesian-product (lst-lst1 lst-lst2)
-  (mapcan #'(lambda (lst-left)
-              (mapcar #'(lambda (lst-right) (list lst-left lst-right))
-                      lst-lst2))
-          lst-lst1))
+(defun cartesian-product (lst1 lst2)
+  (mapcan #'(lambda (left)
+              (mapcar #'(lambda (right) (list left right))
+                      lst2))
+          lst1))
 
 (defun cbal-tree (n)
   (if (< n 1)
@@ -57,5 +56,83 @@
 ;; 56. Symmetric binary trees
 ;; Let us call a binary tree symmetric if you can draw a vertical line through the root node and then the right subtree is the mirror image of the left subtree. Write a predicate symmetric/1 to check whether a given binary tree is symmetric. Hint: Write a predicate mirror/2 first to check whether one tree is the mirror image of another. We are only interested in the structure, not in the contents of the nodes.
 
-(defun tree-symmetric-p ()
+(defun tree-mirror-p (left-tree right-tree)
+  (if (and left-tree right-tree)
+      (and (tree-mirror-p (second left-tree)  (third right-tree))
+           (tree-mirror-p (second right-tree) (third left-tree)))
+      (and (null left-tree)
+           (null right-tree))))
+
+(defun tree-symmetric-p (tree)
+  (tree-mirror-p (second tree) (third tree)))
+
+
+;; 57. Binary search trees (dictionaries)
+;; Use the predicate add/3, developed in chapter 4 of the course, to write a predicate to construct a binary search tree from a list of integer numbers.
+;; Example:
+;; * construct([3,2,5,7,1],T).
+;; T = t(3, t(2, t(1, nil, nil), nil), t(5, nil, t(7, nil, nil)))
+
+;; * (construct '(3 2 5 7 1))
+;; (3 (2 (1 NIL NIL) NIL) (5 NIL (7 NIL NIL)))
+
+;; Then use this predicate to test the solution of the problem P56.
+;; Example:
+;; * test-symmetric([5,3,18,1,4,12,21]).
+;; Yes
+;; * test-symmetric([3,2,5,7,1]).
+;; Yes
+
+;; * (tree-symmetric-p (construct '(5 3 18 1 4 12 21)))
+;; T
+;; * (tree-symmetric-p (construct '(3 2 5 7 1)))
+;; T
+
+;; TREE HAS TO BE NOT EMPTY
+(defun insert-into-tree (elem tree)
+  (loop
+     for prev = tree then curr
+     for curr = (if (< elem (car prev))
+                    (second prev)
+                    (third  prev))
+
+     while curr
+     finally (if (< elem (car prev))
+                 (setf (second prev) (list elem nil nil))
+                 (setf (third  prev) (list elem nil nil)))))
+
+(defun construct (lst)
+  (let ((tree (list (car lst) nil nil)))
+    (loop for elem in (cdr lst)
+       do (insert-into-tree elem tree))
+    tree))
+
+
+;; 58. Generate-and-test paradigm
+
+;; Apply the generate-and-test paradigm to construct all symmetric, completely balanced binary trees with a given number of nodes. Example:
+;; * sym-cbal-trees(5,Ts).
+;; Ts = [t(x, t(x, nil, t(x, nil, nil)), t(x, t(x, nil, nil), nil)), t(x, t(x, t(x, nil, nil), nil), t(x, nil, t(x, nil, nil)))]
+
+;; * (sym-cbal-trees 5)
+;; ((X (X NIL (X NIL NIL)) (X (X NIL NIL) NIL))
+;;  (X (X (X NIL NIL) NIL) (X NIL (X NIL NIL))))
+
+;; How many such trees are there with 57 nodes? Investigate about how many solutions there are for a given number of nodes? What if the number is even? Write an appropriate predicate.
+
+;; certainly better algorithm exists, but generate-and-test is okay
+(defun sym-cbal-trees (n)
+  (remove-if-not #'tree-symmetric-p (cbal-tree n)))
+
+
+;; 59. Construct height-balanced binary trees
+;; In a height-balanced binary tree, the following property holds for every node: The height of its left subtree and the height of its right subtree are almost equal, which means their difference is not greater than one.
+
+;; Write a predicate hbal-tree/2 to construct height-balanced binary trees for a given height. The predicate should generate all solutions via backtracking. Put the letter 'x' as information into all nodes of the tree.
+;; Example:
+;; * hbal-tree(3,T).
+;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), t(x, nil, nil))) ;
+;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), nil)) ;
+
+(defun hbal-tree ()
   )
