@@ -99,6 +99,9 @@
 
 ;; Can you apply the method of "result caching" in order to make the predicate more efficient, when it is to be used repeatedly?
 
+;; * (gray-code 3)
+;; ("000" "001" "011" "010" "110" "111" "101" "100")
+
 (defparameter gray-cache (make-array 1
                                      :fill-pointer 1
                                      :element-type 'list
@@ -117,3 +120,17 @@
                               gray-n-1-reverse))))
         (vector-push-extend gray-n gray-cache)
         gray-n)))
+
+
+;; 50. Huffman code.
+;; First of all, consult a good book on discrete mathematics or algorithms for a detailed description of Huffman codes!
+
+;; We suppose a set of symbols with their frequencies, given as a list of fr(S,F) terms. Example: [fr(a,45),fr(b,13),fr(c,12),fr(d,16),fr(e,9),fr(f,5)]. Our objective is to construct a list hc(S,C) terms, where C is the Huffman code word for the symbol S. In our example, the result could be Hs = [hc(a,'0'), hc(b,'101'), hc(c,'100'), hc(d,'111'), hc(e,'1101'), hc(f,'1100')] [hc(a,'01'),...etc.]. The task shall be performed by the predicate huffman/2 defined as follows:
+
+;; % huffman(Fs,Hs) :- Hs is the Huffman code table for the frequency table Fs
+
+;; * (huffman '((a . 45) (b . 13) (c . 12) (d . 16) (e . 9) (f . 5)))
+;; ((a . "0") (b . "101") (c . "100") (d . "111") (e . "1101") (f . "1100"))
+
+(defun huffman (freq-list)
+  )
