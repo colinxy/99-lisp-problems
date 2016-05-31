@@ -46,11 +46,11 @@
               (if (evenp (1- n))
                   (let ((subtree (cbal-tree (/ (1- n) 2))))
                     (cartesian-product subtree subtree))
-                  (append
-                   (cartesian-product (cbal-tree (floor (1- n) 2))
-                                      (cbal-tree (ceiling (1- n) 2)))
-                   (cartesian-product (cbal-tree (ceiling (1- n) 2))
-                                      (cbal-tree (floor (1- n) 2))))))))
+                  (let ((subtree-smaller (cbal-tree (floor (1- n) 2)))
+                        (subtree-bigger  (cbal-tree (ceiling (1- n) 2))))
+                    (append
+                     (cartesian-product subtree-smaller subtree-bigger)
+                     (cartesian-product subtree-bigger subtree-smaller)))))))
 
 
 ;; 56. Symmetric binary trees
@@ -120,7 +120,7 @@
 
 ;; How many such trees are there with 57 nodes? Investigate about how many solutions there are for a given number of nodes? What if the number is even? Write an appropriate predicate.
 
-;; certainly better algorithm exists, but generate-and-test is okay
+;; certainly better algorithms exist, but generate-and-test is okay
 (defun sym-cbal-trees (n)
   (remove-if-not #'tree-symmetric-p (cbal-tree n)))
 
@@ -134,5 +134,49 @@
 ;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), t(x, nil, nil))) ;
 ;; T = t(x, t(x, t(x, nil, nil), t(x, nil, nil)), t(x, t(x, nil, nil), nil)) ;
 
-(defun hbal-tree ()
+;; * (hbal-tree 2)
+;; ((X (X NIL NIL) (X NIL NIL))
+;;  (X (X NIL NIL) NIL)
+;;  (X NIL (X NIL NIL)))
+
+;; * (hbal-tree 3)
+;; ((X (X (X NIL NIL) NIL) (X NIL NIL))
+;;  (X (X (X NIL NIL) (X NIL NIL)) (X NIL NIL))
+;;  (X (X (X NIL NIL) NIL) (X (X NIL NIL) NIL))
+;;  (X (X (X NIL NIL) NIL) (X (X NIL NIL) (X NIL NIL)))
+;;  (X (X (X NIL NIL) (X NIL NIL)) (X (X NIL NIL) NIL))
+;;  (X (X (X NIL NIL) (X NIL NIL)) (X (X NIL NIL) (X NIL NIL))))
+
+(defun hbal-tree (height)
+  (cond
+    ((<= height 0) '(nil))
+    ((= height 1) '((X nil nil)))
+    (t (mapcar #'(lambda (rest) (cons 'X rest))
+               (let ((hbal-tree-1 (hbal-tree (1- height)))
+                     (hbal-tree-2 (hbal-tree (- height 2))))
+                 (append
+                  (cartesian-product hbal-tree-1 hbal-tree-1)
+                  (cartesian-product hbal-tree-1 hbal-tree-2)
+                  (cartesian-product hbal-tree-2 hbal-tree-1)))))))
+
+
+;; 60. Construct height-balanced binary trees with a given number of nodes
+;; Consider a height-balanced binary tree of height H. What is the maximum number of nodes it can contain?
+;; Clearly, MaxN = 2**H - 1. However, what is the minimum number MinN? This question is more difficult. Try to find a recursive statement and turn it into a predicate minNodes/2 defined as follwos:
+
+;; % minNodes(H,N) :- N is the minimum number of nodes in a height-balanced binary tree of height H.
+;; (integer,integer), (+,?)
+
+;; On the other hand, we might ask: what is the maximum height H a height-balanced binary tree with N nodes can have?
+
+;; % maxHeight(N,H) :- H is the maximum height of a height-balanced binary tree with N nodes
+;; (integer,integer), (+,?)
+
+;; Now, we can attack the main problem: construct all the height-balanced binary trees with a given nuber of nodes.
+
+;; % hbal-tree-nodes(N,T) :- T is a height-balanced binary tree with N nodes.
+
+;; Find out how many height-balanced trees exist for N = 15.
+
+(defun hbal-tree-nodes (n)
   )
